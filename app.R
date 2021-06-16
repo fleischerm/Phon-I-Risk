@@ -16,14 +16,50 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-library(shiny)
 library(ggplot2)
 library(shinydashboard)
+library(shinyMatrix) 
+
+x <- c(0.5,1.0,3.0,5.0,10.0,25.0,100)
+
+children_breathing <- c(0     ,0     ,0     ,0,0,0,0)
+children_shouting <-  c(588.58,235.43,188.34,0,0,0,0)
+children_singing <-   c(70.63 ,31.39 ,23.54 ,0,0,0,0)
+children_speaking <-  c(15.7  ,0     ,0     ,0,0,0,0)
+children <- matrix(c(children_breathing,children_speaking,children_singing,children_shouting),7,4)
+
+
+adolescents_breathing <- c(7.85   ,0     ,0     ,0,0,0,0)
+adolescents_shouting <-  c(1306.64,741.61,447.32,0,0,0,0)
+adolescents_singing <-   c(196.19 ,121.64,74.555,0,0,0,0)
+adolescents_speaking <-  c(51.01  ,15.7  ,7.85  ,0,0,0,0)
+adolescents <- matrix(c(adolescents_breathing,adolescents_speaking,adolescents_singing,adolescents_shouting),7,4)
+
+
+adults_breathing <- c(7.85   ,0     ,0     ,0,0,0,0)
+adults_shouting <-  c(729.84 ,400.23,188.34,0,0,0,0)
+adults_singing <-   c(774.565,439.47,188.34,0,0,0,0)
+adults_speaking <-  c(94.17  ,32.96 ,15.7  ,0,0,0,0)
+adults <- matrix(c(adults_breathing,adults_speaking,adults_singing,adults_shouting),7,4)
+
+
+
+m <- matrix(c(x,
+              children,
+              adolescents,
+              adults), 13, 7,
+              byrow=TRUE, 
+              dimnames = list(NULL, c("0.5e-6 m", "1.0e-6 m","3e-6 m","5e-6 m","10e-6 m","25e-6 m","100e-6 m"))) 
+
+rownames(m) <- c('diameter in eq. state',
+                 'breathing','speaking','singing','shouting',
+                 'breathing','speaking','singing','shouting',
+                 'breathing','speaking','singing','shouting')
 
 
 ui <- dashboardPage(
     skin="black",
-    dashboardHeader(title = "Phon-I-Risk (v0.0.1)"),
+    dashboardHeader(title = "Phon-I-Risk (v0.0.2)"),
     dashboardSidebar(width=150,
         sidebarMenu(id="tabs",
                     menuItem("Calculator", tabName = "Calculator", icon = icon("laptop")),
@@ -37,7 +73,7 @@ ui <- dashboardPage(
             tabItem(tabName = "About",
                     tags$h2("Phon-I-Risk"),
                     tags$h3("Assessing the infection risk of airborne viral transmission during phonatory activities"),
-                    tags$div("Version: 0.0.1"),
+                    tags$div("Version: 0.0.2"),
                     tags$hr(style="border-color: black;"),
                     tags$h3("Benefits"),
                     tags$div("Phon-I-Risk is a simple online calculator assessing the infection risk of viral-airborne transmission caused by several phonatory activities such as speaking, singing, and shouting. This calculator combines findings as published by Lelieveld et al. and Buonanno et al. (see ",tags$b("References"),"). The calculation is based on several assumptions (among others):"),
@@ -52,7 +88,7 @@ ui <- dashboardPage(
                     tags$div(
                         tags$ul(
                             tags$li("Press",tags$b("Calculator"),"on the left panel"),
-                            tags$li("Vary",tags$b("Emissionrates"),"for breathing and the chosen phonatory activity (of the infectious person(s)"),
+                            tags$li("Vary",tags$b("Emissionrates"),"for breathing and the chosen phonatory activity (of the infectious person(s)) - use presets if needed"),
                             tags$li("Adapt",tags$b("Room dimension"),"and",tags$b("Air exchange rate"),"(0.35 represents closed windows)"),
                             tags$li("Vary parameters of the susceptile person(s) in the room"),
                             tags$li("Editing of",tags$b("virus parameters"),"is only useful for experienced users (default values represents data for SARS-CoV-2)")
@@ -65,6 +101,25 @@ ui <- dashboardPage(
                             tags$li("Risk(s) in red color: ",tags$b("Transient condition"),"- Infectious person(s) entered the room immediately")
                             )
                         ),
+                    tags$h3("Change log"),
+                    tags$div(
+                        tags$ul(
+                            tags$li("v.0.0.2:"),
+                                    tags$ul(
+                                        tags$li("Source code re-written"),
+                                        tags$li("Emitted quanta calculated"),
+                                        tags$li("Time increment can now be adjusted"),
+                                        tags$li("Attack rate added"),
+                                        tags$li("References updated"),
+                                        tags$li("Size distribution considered"),
+                                        tags$li("Presets for several groups and conditions were added"),
+                                    ),
+                            tags$li("v.0.0.1:"),
+                                    tags$ul(
+                                        tags$li("Initial submission"),
+                                    ),
+                        ),
+                    ),
                     tags$hr(style="border-color: black;"),
                     tags$h3("Contact"),
                     tags$div("Charité - Universitätsmedizin Berlin"),
@@ -76,8 +131,9 @@ ui <- dashboardPage(
                     tags$div("mario.fleischer[AT]charite.de"),
                     tags$hr(style="border-color: black;"),
                     tags$h3("Disclaimer & Terms of condition"),
-                    tags$div("Phon-I-Risk is build with the packages",tags$a(href="https://shiny.rstudio.com/","shiny, "), tags$a(href="https://ggplot2.tidyverse.org/reference/ggplot.html","ggplot, "), "and ",tags$a(href="https://rstudio.github.io/shinydashboard/","shinydashboard "),"within the ",tags$a(href="https://www.r-project.org/","R programming language.")),
+                    tags$div("Phon-I-Risk is build with the packages", tags$a(href="https://ggplot2.tidyverse.org/reference/ggplot.html","ggplot, "), tags$a(href="https://cran.r-project.org/web/packages/shinyMatrix/index.html","shinyMatrix, "), "and ",tags$a(href="https://rstudio.github.io/shinydashboard/","shinydashboard "),"within the ",tags$a(href="https://www.r-project.org/","R programming language.")),
                     tags$div("This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details."),
+                    tags$div("The source code is hosted at gitlab: ",tags$a(href="https://github.com/fleischerm/Phon-I-Risk","https://github.com/fleischerm/Phon-I-Risk")),
                     ),
                     
             tabItem(tabName = "References",
@@ -113,6 +169,11 @@ ui <- dashboardPage(
                                    "https://doi.org/10.1056/NEJMc2004973")
                         ),
                         tags$div(
+                            "Wei and Li, 2015, Building and Environment (93):86 ",
+                            tags$a(href="https://doi.org/10.1016/j.buildenv.2015.06.018", 
+                                   "https://doi.org/10.1016/j.buildenv.2015.06.018")
+                        ),                    
+                        tags$div(
                             "Adams, W., 1993, Sacramento: California Environmental Protection Agency, Air Resources Board, Research Division ",
                             tags$a(href="https://ww2.arb.ca.gov/sites/default/files/classic//research/apr/past/a033-205.pdf", 
                                    "https://ww2.arb.ca.gov/sites/default/files/classic//research/apr/past/a033-205.pdf")
@@ -123,38 +184,53 @@ ui <- dashboardPage(
                             tags$h2("Infection risk based on particle emission rates"),
                             
                             fluidRow(
-                                column(3,h3("Parameters of the infectious person(s)")),
-                                column(3,h3("Room parameter")),
+                                column(4,h3("Parameters of the infectious person(s)")),
+                                column(2,h3("Room parameter")),
                                 column(3,h3("Parameters of susceptile person(s)")),
                                 column(3,h3("Virus parameter")),
                             ),
                             
-                            column(3,
-                                   numericInput("PM.br", "Emissionrate for breathing [P/s]:",0, min = 0, max = 10000, step = 100),
-                                   numericInput("PM.ph", "Emissionrate for phonation [P/s]:",118, min = 0, max = 100000, step = 100),
-                                   sliderInput("ratio.spbr", label = "Ratio phonation to breathing:", min = 0,
-                                               max = 1, value = 0.1),
-                                   sliderInput("mask.eff.exhaled", label = "Mask efficiency (0 - no mask):", min = 0,
+                            column(4,
+                                   selectInput("age", "Age",
+                                               c("Children" = 1,
+                                                 "Adolescents" = 2,
+                                                 "Adults" = 3)),
+                                   selectInput("condition", "Condition",
+                                               c("Speaking" = 2,
+                                                 "Singing" = 3,
+                                                 "Shouting" = 4
+                                               )),
+                                   # sidebarPanel(
+                                   # width = 10,
+                                   tags$b("Emission rates [P/s] for size classes:"),
+                                   matrixInput("sample",
+                                               value = as.matrix(m[2:3,]),
+                                   ),
+                                   # ),
+                                   sliderInput("t.phon.breath", label = "Ratio phonation to breathing:", min = 0,
+                                               max = 1, value = 1), # 0.1
+                                   sliderInput("kappa.exhal", label = "Mask efficiency (0 - no mask):", min = 0,
                                                max = 1, value = 0.0)
                             ),
-                            column(3, 
-                                   sliderInput("H.room", label = "Room height [m]:", value = 2.8, min = 2, max = 4, step = 0.1),
-                                   sliderInput("A.room", "Room area [m^2]:", value = 30, min = 10, max = 100, step = 5),
-                                   numericInput("V.rate", "Air exchange rate:", 0.35, min = 0.35, max = 1000),
-                                   numericInput("inf.episode", "Duration of rehearsal [h]:", 1, min = 0, max = 12, step = 0.1)
+                            column(2, 
+                                   sliderInput("H.room", label = "Room height [m]:", value = 2.8, min = 2, max = 10, step = 0.1),
+                                   sliderInput("A.room", "Room area [m^2]:", value = 30, min = 10, max = 300, step = 5), # 100
+                                   numericInput("AER", "Air exchange rate:", 0.35, min = 0.35, max = 1000),
+                                   numericInput("t.episode", "Exposure time [h]:", 1, min = 0, max = 12, step = 0.1)
                             ),  
                             column(3, 
-                                   numericInput("No.susc", "Number of susceptile persons in room:", 24, min = 1, max = 100, step = 1),
-                                   numericInput("resp", "Inhalatory respiration rate [l/min] (Salomoni et al. (2016), Adams (1993)):",8, min = 1, max = 20, step = 1),
-                                   sliderInput("mask.eff.inhaled", label = "Mask efficiency (0 - no mask):", min = 0,
+                                   numericInput("N.susc", "Number of susceptile persons in room:", 24, min = 1, max = 100, step = 1),
+                                   numericInput("V.inhal.resp", "Inhalatory respiration rate [l/min] (Salomoni et al. (2016), Adams (1993)):",8, min = 1, max = 20, step = 1),
+                                   sliderInput("kappa.inhal", label = "Mask efficiency (0 - no mask):", min = 0,
                                                max = 1, value = 0.0)
                             ),
                             column(3,
                                    numericInput("D50", "RNA for 50% infection probability (D50) (Lelieveld et al. (2020)):", 316, min = 1, max = 1000),
-                                   numericInput("dp", "Deposition probability (Lelieveld et al. (2020):", 0.5, min = 0.1, max = 100),
+                                   numericInput("k.lung", "Deposition probability (Lelieveld et al. (2020):", 0.5, min = 0.1, max = 100),
                                    numericInput("RNA.conc", "Viral RNA in sputum [RNA/ml] (Jacot et al. (2020), Wölfel et al. (2020)):", 5e8, min = 1e0, max = 1e12),
-                                   numericInput("viral.gamma", "Inactivation rate [1/h] (Doremalen et al. (2020):", 1/1.1, min = 0.1, max = 1., step = 0.1),
-                                   numericInput("d.aero", "Mean wet aerosol diameter [um]:", 5, min = 0.3, max = 50, step = 1)
+                                   numericInput("lambda", "Viral half time [h] (Doremalen et al. (2020):", 1.1, min = 0.1, max = 10., step = 0.1),
+                                   numericInput("shrink", "Shrinking factor for particles (Wei & Li (2015):", 3.0, min = 1.0, max = 10, step = .1),
+                                   numericInput("dt", "Time increment for transient analysis [s]:", 600, min = 1, max = 3600, step = 1)
                             ),
                         ),
                     tags$hr(style="border-color: black;"),
@@ -171,30 +247,36 @@ ui <- dashboardPage(
                             ),
                             column(3,
                                    sidebarLayout(
-                                       sidebarPanel(textOutput("Ri"), style="color:blue"),
-                                       mainPanel("Infection risk in % for an individual person ")),
+                                       sidebarPanel(textOutput("Pi.static"), style="color:blue"),
+                                       mainPanel("Infection risk in % for an individual person (attack rate)")),
                                    sidebarLayout(
-                                       sidebarPanel(textOutput("R"), style="color:blue"),
+                                       sidebarPanel(textOutput("PN.static"), style="color:blue"),
                                        mainPanel("Infection risk in % for one person in room being infected")),
                                    sidebarLayout(
-                                       sidebarPanel(textOutput("Anz"), style="color:blue"),
-                                       mainPanel("Mean no. of persons that will be infected"))
+                                       sidebarPanel(textOutput("N.inf.static"), style="color:blue"),
+                                       mainPanel("Mean no. of persons that will be infected")),
                             ),
                             column(3,
                                    sidebarLayout(
-                                       sidebarPanel(textOutput("R.i.buonanno"), style="color:red"),
-                                       mainPanel("Infection risk in % for an individual person")),
+                                       sidebarPanel(textOutput("Pi.transient"), style="color:red"),
+                                       mainPanel("Infection risk in % for an individual person (attack rate)")),
                                    sidebarLayout(
-                                       sidebarPanel(textOutput("R.buonanno"), style="color:red"),
+                                       sidebarPanel(textOutput("PN.transient"), style="color:red"),
                                        mainPanel("Infection risk in % for one person in room being infected")),
                                    sidebarLayout(
-                                       sidebarPanel(textOutput("Inf.anz.buonanno"), style="color:red"),
-                                       mainPanel("Infected people")),
+                                       sidebarPanel(textOutput("N.inf.transient"), style="color:red"),
+                                       mainPanel("Mean no. of persons that will be infected")),
                             ),
                             column(2,
                                    sidebarLayout(
                                        sidebarPanel(textOutput("D63.21")),
-                                       mainPanel("RNA for 63.21% infection probability (D63.21)"))
+                                       mainPanel("RNA for 63.21% infection probability (D63.21)")),
+                                   sidebarLayout(
+                                       sidebarPanel(textOutput("quanta.emitted")),
+                                       mainPanel("Emitted quanta of infectious person(s) in [q/h]")),
+                                   sidebarLayout(
+                                       sidebarPanel(textOutput("V.room")),
+                                       mainPanel("Room volume in [m^3]")),
                             ),
                         )
                     )
@@ -203,95 +285,123 @@ ui <- dashboardPage(
         )
     )
     
-server <- function(input, output) {
-    D50 <- reactive({input$D50}) # #RNA for 50% infection probability (D50)
-    D63.21 <- reactive({D50()*log10(exp(1))/log10(0.5)})
+server <- function(input, output,session) {
+    # build subset
+    index_breath <- reactive((as.numeric(input$age)-1)*dim(adults)[2]+2)
+    index_phon <- reactive((as.numeric(input$age)-1)*dim(adults)[2]+as.numeric(input$condition)+1)
+    
+    # update input matrix
+    observe({
+        updateMatrixInput(session,
+                          "sample",
+                          as.matrix(m[c(index_breath(),index_phon()),])
+                          )
+    })
+    p.data.phon <- reactive(as.numeric(as.matrix(input$sample)[2,])) # read (updated) PM data
+    p.data.breath <- reactive(as.numeric(as.matrix(input$sample)[1,])) # read (updated) PM data
+    
+    diameter <- reactive(m[1,]*1e-6*input$shrink) # [m] diameter of particles (un-evaporated)
+    Volume <- reactive(pi/6*diameter()^3) # [m^3] volume of spheres with diameter d
+
+    Volume.rate.phon <- reactive(sum(Volume()*p.data.phon())) # [m^3/s] Volume rate phonation
+    Volume.rate.breath <- reactive(sum(Volume()*p.data.breath())) # [m^3/s] Volume rate breathing
+    Volume.rate <- reactive({(Volume.rate.breath()*(1-input$t.phon.breath)+
+                              Volume.rate.phon()*input$t.phon.breath)*(1-input$kappa.exhal)}) # [m^3/s] Volume rate total
+    
     RNA.conc <- reactive({input$RNA.conc}/1e-6) # [RNA/m^3] in sputum
-    viral.lt <- reactive({1/input$viral.gamma*3600}) # [s] viral lifetime in aerosols (1/viral.lt can be interpreted as inactivation rate)
+    
+    D50 <- reactive({input$D50}) # #RNA for 50% infection probability (D50)
+    D63.21 <- reactive(-{D50()*log10(exp(1))/log10(0.5)})
+    
+    RNA.exhal <- reactive({RNA.conc()*Volume.rate()*(1-input$kappa.exhal)}) # [RNA/s] # new
+    
+    AER <- reactive({input$AER/3600}) # [1/s] air exchange rate
+    lambda <- reactive({1/(3600*input$lambda)}) # [1/s] viral inactivation rate in aerosols
+    IVVR <- reactive({AER()+lambda()}) # [1/s] infectious removal rate
+    V.room <- reactive({input$A.room*input$H.room}) # room volume
+    t.static <- reactive({input$t.episode*3600})
+    dt <- reactive({input$dt}) # [s] time increment
+    t.transient <- reactive({1/3600*seq(from = 0, to = t.static(), by = dt())})
+    RNA.room.static <- reactive({RNA.exhal()/(V.room()*(AER()+lambda()))}) # [RNA/m^3] RNA concentration in room
+    RNA.room.transient <- reactive({RNA.room.static()*(1-exp(-IVVR()*t.transient()*3600))}) # [RNA/m^3] RNA concentration in room
+    
+    V.inhal.resp <- reactive({input$V.inhal.resp*1e-3/60}) # [m^3/s] inhalation rate
+    k.lung <- reactive({input$k.lung})
+    RNA.inhal.transient <- reactive({RNA.room.transient()*V.inhal.resp()*(1-input$kappa.inhal)}) # [RNA/s] RNA inhalation rate
+    RNA.transient <- reactive({dt()*sum(RNA.inhal.transient()*k.lung())}) # [RNA] RNA deposition per episode
+    RNA.inhal.static <- reactive({RNA.room.static()*V.inhal.resp()*(1-input$kappa.inhal)}) # [RNA/s] RNA inhalation rate
+    RNA.static <- reactive({t.static()*sum(RNA.inhal.static()*k.lung())}) # [RNA] RNA deposition per episode
+
     P.RNA <- reactive({1-10^(log10(0.5)/D50())}) # infection risk of a single viral RNA copy (Eq. 1 in article)
-    V.aero <- reactive({pi/6*(input$d.aero*1e-6)^3}) # [m^3] aerosol volume
-    RNA.content <- reactive({RNA.conc()*V.aero()}) # [RNA/particle]
+    P.i.transient <- reactive({(1-(1-P.RNA())^RNA.transient())}) # Infection risk in % for an individual person
+    P.N.transient <- reactive({(1-(1-P.RNA())^(RNA.transient()*input$N.susc))}) # Infection risk in % for one person in room being infected
+    N.inf.transient <- reactive({P.i.transient()*input$N.susc})
     
-    PM.our <- reactive({(input$PM.br*(1-input$ratio.spbr)+input$PM.ph*input$ratio.spbr)*(1-input$mask.eff.exhaled)}) # [Particle/s] emission rate, our data
-    Aero.conc.our <- reactive(PM.our()/(input$A.room*input$H.room)) # [particle/(m^3*s)] aerosol conc. rate in room, our data
+    P.i.static <- reactive({(1-(1-P.RNA())^RNA.static())}) # Infection risk in % for an individual person
+    P.N.static <- reactive({(1-(1-P.RNA())^(RNA.static()*input$N.susc))}) # Infection risk in % for one person in room being infected
+    N.inf.static <- reactive({P.i.static()*input$N.susc})    
     
-    RNA.conc.aero.our <- reactive(Aero.conc.our()*RNA.content()) # [RNA/(m^3*s)] RNA conc. rate in room, our data
-    RNA.dosis.our <- reactive((input$resp*1e-3/60)*RNA.conc.aero.our()*input$dp) # [RNA/s^2] RNA dosis inhaled, our data
-    
-    dosis.s.our <- reactive(RNA.dosis.our()/(input$V.rate/3600+1/viral.lt())*(1-input$mask.eff.inhaled)) # [RNA/s], our data
-    dosis.episode.our <- reactive({dosis.s.our()*input$inf.episode*3600}) # [RNA] episode, our data
-    
-    R.i <- reactive({(1-(1-P.RNA())^dosis.episode.our())}) # Infection risk in % for an individual person
-    R.our <- reactive({(1-(1-P.RNA())^(dosis.episode.our()*input$No.susc))}) # Infection risk in % for one person in room being infected
-    Inf.anz <- reactive({round(R.i()*input$No.susc,0)})
+    quanta.emitted <- reactive({RNA.exhal()/D63.21()*3600}) # [q/h] emitted quanta
+    class.t.transient<- reactive({data.frame(t.transient())}) # needed for diagram
+
     
     
-    IVVR <- reactive({input$V.rate/3600+1/viral.lt()})
-    V <- reactive({input$A.room*input$H.room})
-    IR <- reactive({(input$resp*1e-3/60)*(1-input$mask.eff.inhaled)*input$dp})
-    ERq <- reactive({-RNA.content()*PM.our()/D63.21()})
-    n.static <- reactive({ERq()/(V()*IVVR())})
-    t.static <- reactive({input$inf.episode*3600})
-    dt <- reactive({5})
-    t.h <- reactive({1/3600*seq(from = 0, to = t.static(), by = dt())})
-    n.t <- reactive({n.static()*(1-exp(-IVVR()*t.h()*3600))})
-    RNA.t <- reactive({-n.t()*D63.21()*V()})
-    RNA.static <- reactive({rep(c(-n.static()*D63.21()*V()),each=length(n.t()))})
-    class.n.t<- reactive({data.frame(t.h())})
-    
-    R.i.buonanno <- reactive({
-        (1-exp(1)^(-IR()*dt()*sum(n.t())))
-        }) # infection risk in % for an individual person (transient conditions, after Buonanno et al.)
-    R.buonanno <- reactive({
-        (1-exp(1)^(-IR()*dt()*sum(n.t()*input$No.susc)))
-    }) # Infection risk in % for one person in room being infected (transient conditions, after Buonanno et al.)
-    Inf.anz.buonanno <- reactive({round(R.i.buonanno()*input$No.susc,0)}) # Infected people
-    
-    
-    output$Ri <- renderText({
-        R.i <- round(R.i()*100,1)
+    output$Pi.transient <- renderText({
+        P.i.transient <- round(P.i.transient()*100,1)
         })
-    output$R <- renderText({
-        R.our <- round(R.our()*100,1)
+    output$PN.transient <- renderText({
+        P.N.transient <- round(P.N.transient()*100,1)
     })
-    output$Anz <- renderText({
-        Inf.anz <- Inf.anz()
+    output$N.inf.transient <- renderText({
+        N.inf.transient <- round(N.inf.transient(),0)
     })
+ 
     
-    
-    output$R.i.buonanno <- renderText({
-        R.i.buonanno <- round(R.i.buonanno()*100,1)
-    })  
-    output$R.buonanno <- renderText({
-        R.buonanno <- round(R.buonanno()*100,1)
-    })  
-    output$Inf.anz.buonanno <- renderText({
-        Inf.anz.buonanno <- Inf.anz.buonanno()
-    }) 
-    
-    
-    
-    
+    output$Pi.static <- renderText({
+        P.i.static <- round(P.i.static()*100,1)
+    })
+    output$PN.static <- renderText({
+        P.N.static <- round(P.N.static()*100,1)
+    })
+    output$N.inf.static <- renderText({
+        N.inf.static <- round(N.inf.static(),0)
+    })
+
+
     output$D63.21 <- renderText({
-        D63.21 <- round(-D63.21(),0)
+        D63.21 <- round(D63.21(),0)
     }) 
-    output$plot2<-renderPlot({
-        ggplot(class.n.t(),
-               aes(x=t.h()))+
-        geom_line(aes(y=RNA.static()),colour='blue',size=2)+
-        geom_line(aes(y=RNA.t()),colour='red',size=2)+
-        xlab('Duration in h')+
-        ylab('viral RNA in room')},
-        height = 350,width = 500
-        )
-    output$tmp <- renderText({
-        RNA.t()
+    output$quanta.emitted <- renderText({
+        quanta.emitted <- round(quanta.emitted(),0)
     })
+    output$V.room <- renderText({
+        V.room <- round(V.room(),0)
+    })
+    output$V.aero <- renderText({
+        V.aero <- quanta.emitted()*D63.21()/3600
+    })    
+    
+    output$plot2<-renderPlot({
+        ggplot(class.t.transient(),
+               aes(x=t.transient()))+
+        geom_line(aes(y=V.room()*RNA.room.static()),colour='blue',size=2)+
+        geom_line(aes(y=V.room()*RNA.room.transient()),colour='red',size=2)+
+        geom_point(aes(y=V.room()*RNA.room.static()),colour='blue',size=5)+
+        geom_point(aes(y=V.room()*RNA.room.transient()),colour='red',size=5)+
+        xlab('Duration in h')+
+        scale_y_continuous(
+            name = 'viral RNA in room',
+            sec.axis = sec_axis( trans=~.*(1/round(D63.21(),0)), name='Quanta in room')
+            )
+        },
+        height = 300,width = 500
+        )
 }
 
 
 
 shinyApp(ui = ui, server = server)
+
 
 
 
