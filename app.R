@@ -20,42 +20,47 @@ library(ggplot2)
 library(shinydashboard)
 library(shinyMatrix) 
 
-x <- c(0.5,1.0,3.0,5.0,10.0,25.0,100)
+x <- c(0.5,1.0,3.0,5.0,10.0,25.0)
 
-children_breathing <- c(0     ,0     ,0     ,0,0,0,0)
-children_shouting <-  c(588.58,235.43,188.34,0,0,0,0)
-children_singing <-   c(70.63 ,31.39 ,23.54 ,0,0,0,0)
-children_speaking <-  c(15.7  ,0     ,0     ,0,0,0,0)
-children <- matrix(c(children_breathing,children_speaking,children_singing,children_shouting),7,4)
-
-
-adolescents_breathing <- c(7.85   ,0     ,0     ,0,0,0,0)
-adolescents_shouting <-  c(1306.64,741.61,447.32,0,0,0,0)
-adolescents_singing <-   c(196.19 ,121.64,74.555,0,0,0,0)
-adolescents_speaking <-  c(51.01  ,15.7  ,7.85  ,0,0,0,0)
-adolescents <- matrix(c(adolescents_breathing,adolescents_speaking,adolescents_singing,adolescents_shouting),7,4)
+children_breathing <- c(0     ,0     ,0     ,0,0,0)
+children_shouting <-  c(588.58,235.43,188.34,0,0,0)
+children_singing <-   c(70.63 ,31.39 ,23.54 ,0,0,0)
+children_speaking <-  c(15.7  ,0     ,0     ,0,0,0)
+children <- matrix(c(children_breathing,children_speaking,children_singing,children_shouting),6,4)
 
 
-adults_breathing <- c(7.85   ,0     ,0     ,0,0,0,0)
-adults_shouting <-  c(729.84 ,400.23,188.34,0,0,0,0)
-adults_singing <-   c(774.565,439.47,188.34,0,0,0,0)
-adults_speaking <-  c(94.17  ,32.96 ,15.7  ,0,0,0,0)
-adults <- matrix(c(adults_breathing,adults_speaking,adults_singing,adults_shouting),7,4)
+adolescents_breathing <- c(7.85   ,0     ,0     ,0,0,0)
+adolescents_shouting <-  c(1306.64,741.61,447.32,0,0,0)
+adolescents_singing <-   c(196.19 ,121.64,74.555,0,0,0)
+adolescents_speaking <-  c(51.01  ,15.7  ,7.85  ,0,0,0)
+adolescents <- matrix(c(adolescents_breathing,adolescents_speaking,adolescents_singing,adolescents_shouting),6,4)
+
+
+adults_breathing <- c(7.85   ,0     ,0     ,0,0,0)
+adults_shouting <-  c(729.84 ,400.23,188.34,0,0,0)
+adults_singing <-   c(774.565,439.47,188.34,0,0,0)
+adults_speaking <-  c(94.17  ,32.96 ,15.7  ,0,0,0)
+adults <- matrix(c(adults_breathing,adults_speaking,adults_singing,adults_shouting),6,4)
 
 
 
 m <- matrix(c(x,
               children,
               adolescents,
-              adults), 13, 7,
+              adults), 13, 6,
               byrow=TRUE, 
-              dimnames = list(NULL, c("0.5e-6 m", "1.0e-6 m","3e-6 m","5e-6 m","10e-6 m","25e-6 m","100e-6 m"))) 
+              dimnames = list(NULL, c("0.5e-6 m", "1.0e-6 m","3e-6 m","5e-6 m","10e-6 m","25e-6 m"))) 
 
 rownames(m) <- c('diameter in eq. state',
                  'breathing','speaking','singing','shouting',
                  'breathing','speaking','singing','shouting',
                  'breathing','speaking','singing','shouting')
 
+V.H2O <- 0.995 # volume percentage of water in saliva, see Netz, 2020
+Phi.0 <- (1-V.H2O)/V.H2O # initial volume fraction of solutes, see Netz, 2020
+RH <- 0.46 # relativ humidity measured at HRI
+shrink.10 <- (Phi.0/(1-RH))^(-1/3) # for fully evaporated particles
+shrink.25 <- 1.96 # for NOT fully evaporated particles (10-25 microns)
 
 ui <- dashboardPage(
     skin="black",
@@ -81,6 +86,7 @@ ui <- dashboardPage(
                         tags$ul(
                             tags$li("Well mixed air in the room (quantities does not depend on spatial coordinates)"),
                             tags$li("No social distancing is (therefore) considered"),
+                            tags$li("Gravitational effects on particles are not considered"),
                             tags$li("Emission rates are considered directly, which means that both activity levels and airflow of the infectious people(s) must not be taken into account"),
                             )
                         ),
@@ -113,6 +119,7 @@ ui <- dashboardPage(
                                         tags$li("References updated"),
                                         tags$li("Size distribution considered"),
                                         tags$li("Presets for several groups and conditions were added"),
+                                        tags$li("Particle evaporation (shrinking) considered explicitly according to Netz, 2020"),
                                     ),
                             tags$li("v.0.0.1:"),
                                     tags$ul(
@@ -169,15 +176,31 @@ ui <- dashboardPage(
                                    "https://doi.org/10.1056/NEJMc2004973")
                         ),
                         tags$div(
-                            "Wei and Li, 2015, Building and Environment (93):86 ",
-                            tags$a(href="https://doi.org/10.1016/j.buildenv.2015.06.018", 
-                                   "https://doi.org/10.1016/j.buildenv.2015.06.018")
-                        ),                    
+                            "Netz, 2020, J. Phys. Chem. B 2020 (124):7093",
+                            tags$a(href="https://dx.doi.org/10.1021/acs.jpcb.0c05229", 
+                                   "https://dx.doi.org/10.1021/acs.jpcb.0c05229")
+                        ),   
+                    
                         tags$div(
                             "Adams, W., 1993, Sacramento: California Environmental Protection Agency, Air Resources Board, Research Division ",
                             tags$a(href="https://ww2.arb.ca.gov/sites/default/files/classic//research/apr/past/a033-205.pdf", 
                                    "https://ww2.arb.ca.gov/sites/default/files/classic//research/apr/past/a033-205.pdf")
                         ),
+                        tags$div(
+                            "Mürbe et al., 2021a, PLoS ONE (16):1",
+                            tags$a(href="https://doi.org/10.1371/journal.pone.0246819", 
+                                   "https://doi.org/10.1371/journal.pone.0246819")
+                        ),
+                        tags$div(
+                            "Mürbe et al., 2021b, pre-print",
+                            tags$a(href="https://doi.org/10.5281/zenodo.4770776", 
+                                   "https://doi.org/10.5281/zenodo.4770776")
+                        ),    
+                        tags$div(
+                            "Mürbe et al., 2020, pre-print",
+                            tags$a(href="https://doi.org/10.31219/osf.io/znjeh", 
+                                   "https://doi.org/10.31219/osf.io/znjeh")
+                        ),                    
                 ),
             tabItem(tabName = "Calculator",
                         fluidPage(
@@ -186,50 +209,54 @@ ui <- dashboardPage(
                             fluidRow(
                                 column(4,h3("Parameters of the infectious person(s)")),
                                 column(2,h3("Room parameter")),
-                                column(3,h3("Parameters of susceptile person(s)")),
-                                column(3,h3("Virus parameter")),
+                                column(2,h3("Parameters of susceptile person(s)")),
+                                column(2,h3("Virus parameter")),
+                                column(2,h3("Numerical parameter")),
                             ),
                             
                             column(4,
+                                   column(6,
                                    selectInput("age", "Age",
                                                c("Children" = 1,
                                                  "Adolescents" = 2,
-                                                 "Adults" = 3)),
+                                                 "Adults" = 3))),
+                                   column(6,
                                    selectInput("condition", "Condition",
                                                c("Speaking" = 2,
                                                  "Singing" = 3,
                                                  "Shouting" = 4
-                                               )),
-                                   # sidebarPanel(
-                                   # width = 10,
-                                   tags$b("Emission rates [P/s] for size classes:"),
+                                               ))),
+                                   tags$b("Emission rates [P/s] for size classes (mostly evaporated) after Mürbe et al., 2020, 2021a, 2021b):"),
                                    matrixInput("sample",
                                                value = as.matrix(m[2:3,]),
                                    ),
-                                   # ),
+                                   column(6,
                                    sliderInput("t.phon.breath", label = "Ratio phonation to breathing:", min = 0,
-                                               max = 1, value = 1), # 0.1
+                                               max = 1, value = 1)), # 0.1
+                                   column(6,
                                    sliderInput("kappa.exhal", label = "Mask efficiency (0 - no mask):", min = 0,
-                                               max = 1, value = 0.0)
+                                               max = 1, value = 0.0),
+                                    ),
+                                   numericInput("t.episode", "Exposure time [h]:", 1, min = 0, max = 12, step = 0.1)
                             ),
                             column(2, 
                                    sliderInput("H.room", label = "Room height [m]:", value = 2.8, min = 2, max = 10, step = 0.1),
                                    sliderInput("A.room", "Room area [m^2]:", value = 30, min = 10, max = 300, step = 5), # 100
                                    numericInput("AER", "Air exchange rate:", 0.35, min = 0.35, max = 1000),
-                                   numericInput("t.episode", "Exposure time [h]:", 1, min = 0, max = 12, step = 0.1)
                             ),  
-                            column(3, 
+                            column(2, 
                                    numericInput("N.susc", "Number of susceptile persons in room:", 24, min = 1, max = 100, step = 1),
                                    numericInput("V.inhal.resp", "Inhalatory respiration rate [l/min] (Salomoni et al. (2016), Adams (1993)):",8, min = 1, max = 20, step = 1),
                                    sliderInput("kappa.inhal", label = "Mask efficiency (0 - no mask):", min = 0,
                                                max = 1, value = 0.0)
                             ),
-                            column(3,
+                            column(2,
                                    numericInput("D50", "RNA for 50% infection probability (D50) (Lelieveld et al. (2020)):", 316, min = 1, max = 1000),
-                                   numericInput("k.lung", "Deposition probability (Lelieveld et al. (2020):", 0.5, min = 0.1, max = 100),
+                                   numericInput("k.lung", "Deposition probability (Lelieveld et al. (2020)):", 0.5, min = 0.1, max = 100),
                                    numericInput("RNA.conc", "Viral RNA in sputum [RNA/ml] (Jacot et al. (2020), Wölfel et al. (2020)):", 5e8, min = 1e0, max = 1e12),
-                                   numericInput("lambda", "Viral half time [h] (Doremalen et al. (2020):", 1.1, min = 0.1, max = 10., step = 0.1),
-                                   numericInput("shrink", "Shrinking factor for particles (Wei & Li (2015):", 3.0, min = 1.0, max = 10, step = .1),
+                                   numericInput("lambda", "Viral half time [h] (Doremalen et al. (2020)):", 1.1, min = 0.1, max = 10., step = 0.1),
+                            ),
+                            column(2,
                                    numericInput("dt", "Time increment for transient analysis [s]:", 600, min = 1, max = 3600, step = 1)
                             ),
                         ),
@@ -280,7 +307,6 @@ ui <- dashboardPage(
                             ),
                         )
                     )
-            
             )
         )
     )
@@ -300,7 +326,8 @@ server <- function(input, output,session) {
     p.data.phon <- reactive(as.numeric(as.matrix(input$sample)[2,])) # read (updated) PM data
     p.data.breath <- reactive(as.numeric(as.matrix(input$sample)[1,])) # read (updated) PM data
     
-    diameter <- reactive(m[1,]*1e-6*input$shrink) # [m] diameter of particles (un-evaporated)
+    shrink <- reactive((c(shrink.10,shrink.10,shrink.10,shrink.10,shrink.10,shrink.25)))
+    diameter <- reactive(m[1,]*1e-6*shrink()) # [m] diameter of particles (un-evaporated)
     Volume <- reactive(pi/6*diameter()^3) # [m^3] volume of spheres with diameter d
 
     Volume.rate.phon <- reactive(sum(Volume()*p.data.phon())) # [m^3/s] Volume rate phonation
@@ -394,7 +421,7 @@ server <- function(input, output,session) {
             sec.axis = sec_axis( trans=~.*(1/round(D63.21(),0)), name='Quanta in room')
             )
         },
-        height = 300,width = 500
+        height = 250,width = 500
         )
 }
 
