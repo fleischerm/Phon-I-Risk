@@ -86,7 +86,7 @@ ui <- dashboardPage(
                                    # ),
 
                                    column(4,
-                                   sliderInput("t.phon.breath", label = "Ratio phonation to breathing:", min = 0,
+                                   sliderInput("t.phon.breath", label = "Ratio phonation time to exposure time:", min = 0,
                                                max = 1, value = 1)),
                                    column(4,
                                    sliderInput("kappa.exhal", label = "Mask efficiency (0 - no mask):", min = 0,
@@ -109,13 +109,13 @@ ui <- dashboardPage(
                                                max = 1, value = 0.0)
                             ),
                             column(2,
-                                   numericInput("D50", "RNA for 50% infection probability (D50) (Lelieveld et al. (2020)):", 316, min = 1, max = 1000),
+                                   numericInput("D50", "RNA for 50% infection probability (D50) (Karimzadeh et al. (2021)):", 69, min = 1, max = 1000),
                                    numericInput("k.lung", "Deposition probability (Lelieveld et al. (2020)):", 0.5, min = 0.1, max = 100),
-                                   numericInput("RNA.conc", "Viral RNA in sputum [RNA/ml] (Jacot et al. (2020), Wölfel et al. (2020)):", 5e8, min = 1e0, max = 1e12),
+                                   numericInput("RNA.conc", "Viral RNA in sputum [RNA/ml] (Jacot et al. (2020), Wölfel et al. (2020), Jones et al. (2021)):", 1e7, min = 1e0, max = 1e12),
                                    numericInput("lambda", "Viral half time [h] (Doremalen et al. (2020)):", 1.1, min = 0.1, max = 10., step = 0.1),
                             ),
                             column(2,
-                                   numericInput("dt", "Time increment for transient analysis [s]:", 600, min = 1, max = 3600, step = 1)
+                                   numericInput("dt", "Time increment for transient analysis [s]:", 60, min = 1, max = 3600, step = 1)
                             ),
                         ),
                     tags$hr(style="border-color: black;"),
@@ -217,6 +217,9 @@ ui <- dashboardPage(
                                    sidebarLayout(
                                        sidebarPanel(textOutput("V.room")),
                                        mainPanel("Room volume in [m^3]")),
+                                   sidebarLayout(
+                                       sidebarPanel(textOutput("AVF")),
+                                       mainPanel("Air volume flow in [m^3/h]")),
                             ),
                         )
                     )
@@ -372,6 +375,9 @@ server <- function(input, output,session) {
     output$V.min.aero <- renderText({
         V.min.aero <- quanta.min.emitted()*D63.21()/3600
     }) 
+    output$AVF <- renderText({
+        AVF <- round(input$AER*V.room())
+    }) 
     
     output$diameter.min.evap <- renderTable({
         diameter.min.evap <- matrix(diameter.min.evap(),nrow=1)
@@ -384,8 +390,8 @@ server <- function(input, output,session) {
             geom_ribbon(aes(ymax=V.room()*RNA.max.room.static(), ymin=V.room()*RNA.min.room.static()), fill="blue", alpha=.1)+
         geom_line(aes(y=V.room()*RNA.max.room.transient()),colour='red',size=2)+
             geom_ribbon(aes(ymax=V.room()*RNA.max.room.transient(), ymin=V.room()*RNA.min.room.transient()), fill="red", alpha=.1)+
-        geom_point(aes(y=V.room()*RNA.max.room.static()),colour='blue',size=5)+
-        geom_point(aes(y=V.room()*RNA.max.room.transient()),colour='red',size=5)+
+        geom_point(aes(y=V.room()*RNA.max.room.static()),colour='blue',size=2)+
+        geom_point(aes(y=V.room()*RNA.max.room.transient()),colour='red',size=2)+
         xlab('Duration in h')+
         scale_y_continuous(
             name = 'viral RNA in room',

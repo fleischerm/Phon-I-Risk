@@ -55,5 +55,15 @@ references <- tabItem(tabName = "References",
           "Mürbe et al., 2020, pre-print",
           tags$a(href="https://doi.org/10.31219/osf.io/znjeh", 
                  "https://doi.org/10.31219/osf.io/znjeh")
-        ),                    
+        ),   
+        tags$div(
+          "Karimzadeh et al., 2021, Epidemiol. Infect. (149):1",
+          tags$a(href="https://doi.org/10.1017/S0950268821000790", 
+                 "https://doi.org/10.1017/S0950268821000790")
+        ),
+        tags$div(
+          "Jones et al., 2021, Science",
+          tags$a(href="https://doi.org/10.1126/science.abi5273 ", 
+                 "https://doi.org/10.1126/science.abi5273 ")
+        ),
 )
