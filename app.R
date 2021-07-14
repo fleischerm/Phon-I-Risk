@@ -139,7 +139,7 @@ ui <- dashboardPage(
                                    column(7,
                                           sidebarLayout(
                                             sidebarPanel(textOutput("P.max.i.static"), style="color:blue"),
-                                            mainPanel("Infection risk in % for an individual person (attack rate)")),
+                                            mainPanel("Infection risk in % for an individual person")),
                                    ),
 
                                    column(5,
@@ -173,7 +173,7 @@ ui <- dashboardPage(
                                    column(7,
                                             sidebarLayout(
                                             sidebarPanel(textOutput("P.max.i.transient"), style="color:red"),
-                                            mainPanel("Infection risk in % for an individual person (attack rate)")),
+                                            mainPanel("Infection risk in % for an individual person")),
                                    ),
 
                                    column(5,
